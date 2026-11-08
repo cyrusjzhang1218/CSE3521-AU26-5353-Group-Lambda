@@ -31,7 +31,9 @@ The primary attributes are
 - **Summary** — Optional short review summaries
 - **Score** — Five-star customer ratings used for sentiment labeling
 
-The project uses binary sentiment classification. Preliminary analysis uses the full dataset while the required 50,000-review sample is being clarified.
+The project uses binary sentiment classification. 
+
+Group Lambda uses a 50,000-review sample generated from the original dataset using the instructor-assigned random seed of 45. This sample will be used consistently throughout model development and evaluation. Preliminary analysis shows that five-star reviews account for 63.83% of the sample, indicating a substantial imbalance toward higher ratings.
 
 Raw dataset files will not be committed to this repository.
 
