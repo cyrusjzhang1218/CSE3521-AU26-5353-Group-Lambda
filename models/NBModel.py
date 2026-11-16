@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
@@ -12,6 +12,10 @@ from sklearn.metrics import (
     confusion_matrix,
     classification_report,
 )
+
+#Uncomment Representation:
+#featureRep = "BoW"
+featureRep = "TF-IDF"
 
 ###Training model
 
@@ -40,8 +44,8 @@ trainingData = prepareBinaryData(trainDataFile)
 testingData = prepareBinaryData(testDataFile)
 
 #Building BoW matrix using filtered vocab
-vectorizer = CountVectorizer(vocabulary=filteredVocab)
-xTrain = vectorizer.transform(trainingData["combinedText"])
+vectorizer = CountVectorizer(vocabulary=filteredVocab) if featureRep == "BoW" else TfidfVectorizer(vocabulary=filteredVocab)
+xTrain = vectorizer.transform(trainingData["combinedText"]) if featureRep == "BoW" else vectorizer.fit_transform(trainingData["combinedText"])
 yTrain = trainingData["Sentiment"]
 
 xTest = vectorizer.transform(testingData["combinedText"])
@@ -70,7 +74,7 @@ yPred = nbModel.predict(xTest)
 
 
 #Showing results
-print("\n--- Multinomial Naive Bayes Results (20% Test Set) ---")
+print(f"\n--- Multinomial Naive Bayes ({featureRep}) Results (20% Test Set) ---")
 print(f"Test Reviews Count: {xTest.shape[0]}")
 print(f"Accuracy:  {accuracy_score(yTest, yPred):.4f}")
 print(f"Precision: {precision_score(yTest, yPred):.4f}")
@@ -95,20 +99,22 @@ logOdds = nbModel.feature_log_prob_[1] - nbModel.feature_log_prob_[0] #finds how
 #subtracts the log of the probability of a word appearing in a negative review from the log of the probability of it appearing in a positive review. This gives us the log-odds ratio for each word, which tells us how strongly each word is associated with positive or negative sentiment.
 
 sortedIdx = np.argsort(logOdds) #sorts the log-odds ratios in ascending order
-top10PosIdx = sortedIdx[-10:][::-1] #first 10 words in the array, most positive
-top10NegIdx = sortedIdx[:10] #last 10 words in the array, most negative
+top10PosIdx = sortedIdx[-10:][::-1] #last 10 words in the array, most positive
+top10NegIdx = sortedIdx[:10] #first 10 words in the array, most negative
 
 print("\n--- Top-10 Most Informative Words ---")
 print("Positive:", ", ".join(featureNames[top10PosIdx]))
 print("Negative:", ", ".join(featureNames[top10NegIdx]))
 
 #Error Analysis
+
+
 testingData = testingData.reset_index(drop=True) #resets testing index to allign with predictions, since dropping 3 stars can leave gaps
 testingData["Predicted"] = yPred
 misclassified = testingData[testingData["Sentiment"] != testingData["Predicted"]] #get all incorrect predictions
 
 print(f"\n--- Sample Misclassified Reviews ({len(misclassified)} total errors out of {len(testingData)}) ---")
-for index, row in misclassified.head(10).iterrows(): #get 10 misclassified revies
+for index, row in misclassified.head(5).iterrows(): #get 5 misclassified reviews
     #rename to words
     actualStr = "Positive" if row["Sentiment"] == 1 else "Negative" 
     predStr = "Positive" if row["Predicted"] == 1 else "Negative"
