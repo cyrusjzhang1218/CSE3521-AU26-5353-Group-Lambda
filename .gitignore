@@ -224,3 +224,6 @@ __marimo__/
 
 # Personal file
 .vscode/
+
+# Virtual environment
+.venv/
