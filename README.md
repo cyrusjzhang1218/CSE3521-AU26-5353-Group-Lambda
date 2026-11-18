@@ -68,7 +68,7 @@ The planned Streamlit application will provide
 | Milestone | Target Date | Deliverable |
 |---|---|---|
 | M1 | November 10, 2026 | Project charter, dataset exploration, and technical plan |
-| M2 | November 15, 2026 | Initial feature pipeline, classical model, and evaluation |
+| M2 | November 18, 2026 | Initial feature pipeline, classical model, and evaluation |
 | M3 | November 22, 2026 | Complete model comparison and Streamlit prototype |
 | M4 | November 29, 2026 | Final report, presentation, and deployed application |
 | Final Preparation | December 2, 2026 | Testing, demonstration rehearsal, and Q&A preparation |
