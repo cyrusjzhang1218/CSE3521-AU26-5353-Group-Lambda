@@ -1,5 +1,4 @@
-
-
+import joblib
 import sys
 import pandas as pd
 import time
@@ -73,5 +72,15 @@ def main():
 	print("Confusion Matrix:")
 	print(confusion_matrix(test_data["Sentiment"], predictions))
 
+	# Export Logistic Regression model and vectorizer
+	tag = "bow" if feature_rep == "BoW" else "tfidf"
+
+	joblib.dump(model, f"models/lr_{tag}_model.joblib")
+	joblib.dump(vectorizer, f"models/lr_{tag}_vectorizer.joblib")
+
+	print(f"Exported Logistic Regression ({feature_rep}) model and vectorizer.")
+
+
 if __name__ == "__main__":
 	main()
+
