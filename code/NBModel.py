@@ -14,8 +14,8 @@ from sklearn.metrics import (
 )
 
 #Uncomment Representation:
-#featureRep = "BoW"
-featureRep = "TF-IDF"
+featureRep = "BoW"
+#featureRep = "TF-IDF"
 
 ###Training model
 
@@ -35,7 +35,7 @@ def prepareBinaryData(dataFile):
     dataFile = dataFile[dataFile["Score"] != 3].copy() #remove 3 star reviews, not needed but a good safeguard
 
     #Augmenting data file
-    dataFile["combinedText"] = dataFile["Summary"].fillna("").astype(str) + " " + dataFile["Text"].astype(str) #combine summary and text
+    dataFile["combinedText"] = dataFile["Summary"].fillna("").astype(str) + " " + dataFile["Summary"].fillna("").astype(str) + " " + dataFile["Text"].astype(str)
     dataFile["Sentiment"] = (dataFile["Score"] >= 4).astype(int)
     return dataFile
 
@@ -62,7 +62,7 @@ nbModel.fit(xTrain, yTrain)
 #This creates a baseline
 #Finds what is the most frequent outcome, then blindly guesses
 #With our data, will guess positive all the time
-majorityBaseline = DummyClassifier(strategy="most_frequent")
+majorityBaseline = DummyClassifier(strategy = "most_frequent")
 majorityBaseline.fit(xTrain, yTrain)
 baselinePred = majorityBaseline.predict(xTest)
 
@@ -73,7 +73,7 @@ print(f"Baseline Accuracy: {accuracy_score(yTest, baselinePred):.4f}")
 yPred = nbModel.predict(xTest)
 
 
-#Showing results
+#Showing Results
 print(f"\n--- Multinomial Naive Bayes ({featureRep}) Results (20% Test Set) ---")
 print(f"Test Reviews Count: {xTest.shape[0]}")
 print(f"Accuracy:  {accuracy_score(yTest, yPred):.4f}")
@@ -83,12 +83,12 @@ print(f"F1-Score:  {f1_score(yTest, yPred):.4f}")
 
 labels = [0, 1]
 labelNames = ["Negative (0)", "Positive (1)"]
-cm = confusion_matrix(yTest, yPred, labels=labels)
+cm = confusion_matrix(yTest, yPred, labels = labels)
 print("\nConfusion Matrix (rows=Actual, cols=Predicted):")
-print(pd.DataFrame(cm, index=labelNames, columns=labelNames))
+print(pd.DataFrame(cm, index = labelNames, columns = labelNames))
 
 print("\nDetailed Classification Report:")
-print(classification_report(yTest, yPred, target_names=labelNames))
+print(classification_report(yTest, yPred, target_names = labelNames))
 
 
 
@@ -109,7 +109,7 @@ print("Negative:", ", ".join(featureNames[top10NegIdx]))
 #Error Analysis
 
 
-testingData = testingData.reset_index(drop=True) #resets testing index to allign with predictions, since dropping 3 stars can leave gaps
+testingData = testingData.reset_index(drop = True) #resets testing index to allign with predictions, since dropping 3 stars can leave gaps
 testingData["Predicted"] = yPred
 misclassified = testingData[testingData["Sentiment"] != testingData["Predicted"]] #get all incorrect predictions
 
@@ -121,3 +121,12 @@ for index, row in misclassified.head(5).iterrows(): #get 5 misclassified reviews
     #display results
     print(f"[Actual: {actualStr} ({int(row['Score'])} stars) | Predicted: {predStr}]")
     print(f"Review: {row['combinedText'][:250]}...\n") #truncate review to 250 characters for display
+
+
+#Prevent NotFittedError in Streamlit
+vectorizer.fit(trainingData["combinedText"])
+
+#Export Model & Vectorizer for the Streamlit App
+joblib.dump(nbModel, "models/nb_model.joblib")
+joblib.dump(vectorizer, f"models/{featureRep.lower()}_vectorizer.joblib")
+print("Saved model and vectorizer to models/ directory.")
