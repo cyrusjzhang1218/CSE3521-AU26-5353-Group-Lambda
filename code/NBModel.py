@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
+import time
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.dummy import DummyClassifier
@@ -54,7 +55,12 @@ yTest = testingData["Sentiment"]
 
 #Training multinomial naive bayes
 nbModel = MultinomialNB(alpha = 1.0) #Laplace smoothing
+
+startTime = time.time()
 nbModel.fit(xTrain, yTrain)
+trainTime = time.time() - startTime
+print(f"Training completed in {trainTime:.2f} seconds")
+
 
 
 ###Testing model

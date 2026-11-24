@@ -1,5 +1,6 @@
 import time
 import joblib
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -11,7 +12,9 @@ from sklearn.metrics import (
     f1_score,
     confusion_matrix,
     classification_report,
+    log_loss
 )
+from sklearn.model_selection import train_test_split
 
 featureRep = "TF-IDF"
 
