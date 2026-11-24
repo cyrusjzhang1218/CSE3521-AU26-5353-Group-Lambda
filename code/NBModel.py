@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
+import time
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.dummy import DummyClassifier
@@ -14,8 +15,8 @@ from sklearn.metrics import (
 )
 
 #Uncomment Representation:
-featureRep = "BoW"
-#featureRep = "TF-IDF"
+#featureRep = "BoW"
+featureRep = "TF-IDF"
 
 ###Training model
 
@@ -54,7 +55,12 @@ yTest = testingData["Sentiment"]
 
 #Training multinomial naive bayes
 nbModel = MultinomialNB(alpha = 1.0) #Laplace smoothing
+
+startTime = time.perf_counter()
 nbModel.fit(xTrain, yTrain)
+endTime = time.perf_counter()
+
+trainingTime = endTime - startTime
 
 
 ###Testing model
@@ -80,6 +86,7 @@ print(f"Accuracy:  {accuracy_score(yTest, yPred):.4f}")
 print(f"Precision: {precision_score(yTest, yPred):.4f}")
 print(f"Recall:    {recall_score(yTest, yPred):.4f}")
 print(f"F1-Score:  {f1_score(yTest, yPred):.4f}")
+print(f"Training Time: {trainingTime:.6f} seconds")
 
 labels = [0, 1]
 labelNames = ["Negative (0)", "Positive (1)"]
