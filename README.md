@@ -5,11 +5,13 @@
 
 ## Project Overview
 
-This project uses machine learning to classify customer sentiment in Amazon food reviews. The system analyzes written customer feedback and classifies reviews as positive or negative using three model families: Naive Bayes, Logistic Regression, and a Feedforward Neural Network (FNN). The models use Bag of Words or TF-IDF features. The Streamlit application provides live predictions from two of the trained models.
+This project uses machine learning to classify customer sentiment in Amazon food reviews. The system analyzes written customer feedback and classifies reviews as positive or negative using three model families: Naive Bayes, Logistic Regression, and a Feedforward Neural Network (FNN). The models use Bag of Words or TF-IDF features. The Streamlit application compares predictions from all five trained models.
 
 The goal is to help e-commerce vendors and product managers understand customer satisfaction, identify negative feedback, and prioritize reviews for further investigation.
 
-The Streamlit application allows users to submit review text, optionally include a review summary, and compare sentiment predictions. The M3 prototype runs locally (see Quick Start). Public deployment through Streamlit Community Cloud is planned for M4.
+The Streamlit application allows users to submit review text, optionally include a review summary, and compare sentiment predictions. It is deployed on Streamlit Community Cloud:
+
+**Live app:** https://group-lambda-sentiment.streamlit.app
 
 ## Team Members
 
@@ -46,19 +48,25 @@ streamlit run app/app.py
 
    Then open http://localhost:8501. If the `streamlit` command is not found on Windows, use `python -m streamlit run app/app.py`. Stop the app with Ctrl+C.
 
+Before deploying changed models or app code, run the held-out test-set check from the repository root:
+
+```bash
+python -m scripts.check_model_metrics
+```
+
+The check evaluates every saved model against `data/model_metrics.csv` and fails if a metric differs at four decimal places. Confirm that all five models pass before deploying.
+
 ## Web Application
 
-The app is in `app/app.py`. Enter a review and, optionally, a review summary, then select **Analyze sentiment**.
+The app is in `app/app.py`. Enter a review and, optionally, a review summary, then select **Analyze sentiment**. The four sample-review buttons load example reviews.
 
 | Tab | What it shows |
 |---|---|
-| Predictions | For each model: the predicted label (positive or negative), the probability of positive sentiment, and the confidence in the predicted label |
+| Predictions | Results grouped by model family, with the predicted label (positive or negative), probability of positive sentiment, prediction confidence, and a one-line agreement summary |
 | Model comparison | The list of available models and the summary setting each one uses |
 | About | A short explanation of how the models process a review |
 
-The app currently predicts with two models side by side: the Feedforward Neural Network (TF-IDF) and Logistic Regression (TF-IDF). The Naive Bayes models and Logistic Regression (BoW) are also saved in `models/` and configured in `app/app.py`, but they are not used for predictions yet.
-
-The review summary is optional. If it is left empty, the models classify the review text alone.
+All five saved models are used for each prediction. The review summary is optional; when provided, each model applies the summary repetition count used during training.
 
 ### How the app builds each model's input
 
@@ -127,6 +135,8 @@ All scores are on the 8,579-review held-out test set. Precision, recall and F1 a
 
 Training times are the M3 report measurements. They measure model fitting only, excluding data loading, feature extraction, and hyperparameter tuning. Times vary depending on hardware and system workload.
 
+The expected test metrics are also recorded in `data/model_metrics.csv`. Run `python -m scripts.check_model_metrics` before each deployment to compare the saved models against these reported values.
+
 The FNN achieves the highest test accuracy (95.24%) and positive sentiment F1 score (0.9721). It also correctly identifies 1,065 of 1,322 negative test reviews (80.56% negative recall).
 
 **Confusion matrices** (rows are actual, columns are predicted; order is negative, positive):
@@ -174,6 +184,8 @@ Training loss decreased while validation loss increased after the early epochs, 
 | Path | Contents |
 |---|---|
 | `app/app.py` | Streamlit application |
+| `scripts/check_model_metrics.py` | Checks saved-model metrics against the held-out test split and metrics CSV |
+| `data/model_metrics.csv` | Expected held-out test metrics for all five models |
 | `code/NBModel.py` | Naive Bayes training and evaluation |
 | `code/LRModel.py` | Logistic Regression training and evaluation |
 | `code/FNNModel.py` | FNN training, evaluation, and model export |
@@ -198,4 +210,4 @@ The following dates are the team's existing planning targets. Refer to Carmen fo
 
 ## Project Status
 
-As of M3: all five model variants are trained and evaluated, and the Streamlit prototype runs locally with two models. Remaining work for M4 includes deploying the app to Streamlit Community Cloud, further model tuning and feature improvements, improving the interface, and completing the final report and presentation. Adding the remaining models and a metrics table to the app are optional interface improvements.
+As of M4: all five model variants are available in the deployed Streamlit app. The interface includes sample reviews and grouped model comparisons. Run the held-out metrics check before deploying changes; sample inputs can be checked manually in the app.
